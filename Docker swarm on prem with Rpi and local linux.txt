@@ -1,0 +1,48 @@
+Pi4Node1	Worker/Node1
+Pi4Node2	Worker/Node2
+Pi5		Master
+Aspire		Master
+Ubuntu		Master
+
+###### Run visualiser on the masters, doesnt work on Pi either ##########
+sudo docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+
+###### - Create a leader token/swarm on the first master node: ###############
+docker swarm init 
+(gives you the join token for the nodes: sudo docker swarm join --token SWMTKN-1-06zuc9blid0md0vd8fkk2t4h528y4g2qxkmp7fdks4e55bklfv-910r63o2yp26nf6a6rqljgz11 172.31.18.120:2377)
+
+### joint he worker nodes to the swarm: #####
+sudo docker swarm join --token SWMTKN-1-2rk0v4evsk8zj4702hvgpy71opq4wbnua9wctn13xzwj6ktwjv-ahnkadi9qz3lkbpuuqdzjfydq 192.168.0.32:2377
+
+============ problem, old nodes are still visible in visualiser: resolved by refreshing the page after some time
+
+### create a new manager master token (to join the new managers, have to be 3 to manage auto fallower)
+sudo docker swarm join-token manager
+
+### joint the 2 other masters with the new master token:
+sudo docker swarm join --token SWMTKN-1-2rk0v4evsk8zj4702hvgpy71opq4wbnua9wctn13xzwj6ktwjv-82kfqcyqk2n86uuk77y5mfzdl 192.168.0.32:2377
+This node joined a swarm as a manager.
+
+###  Drain master1, master2 and master3 of containers: 
+sudo docker node update --availability drain master1
+sudo docker node update --availability drain master2
+sudo docker node update --availability drain master3
+
+### - Create a NginX web service from master1: 
+sudo docker service create --name nginx -p 8081:80 nginx
+
+### scale the service to the 2 workers/nodes with 4 instances, from the master1
+sudo docker service scale nginx=4
+
+=== if one node fails , this setup automatically starts the failed service on node 2 and it will have 4 nginx instances running
+=== when a node comes back into the cluster/swarm, it wont automatically take onboard the (in this case) 2 failed over instances.
+
+### to re-distribute the service/insctance load, from the master :
+sudo docker service update nginx --force
+
+=== install sshfs , didnt work on Rpi or Aspire
+sudo docker plugin install --grant-all-permissions vieux/sshfs
+latest: Pulling from vieux/sshfs
+
+Error response from daemon: dial unix /run/docker/plugins/2a12e771a7b80e971d785fc73f57e6c1997975f71aac2922d080eecbf0204136/sshfs.sock: connect: no such file or directory
+
