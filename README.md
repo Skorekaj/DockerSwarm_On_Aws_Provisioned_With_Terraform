@@ -8,6 +8,7 @@ Technologies:
 - BASH
 - Python
 
+Setup:
 - Setup run 5 ec2 instances.
 - Configure sec groups to allow all traffic so nodes can join and communicate.
 Ports:
@@ -23,7 +24,7 @@ Port 4789 UDP (configurable) for overlay network traffic
 - Create a manager token on master1:
 - Join master2 and master3 to the swarm:
 - Create a service on master1: 
-- Scale the service to 3 : 
+- Scale the service to 3 nodes: 
 - Drain master1, master2 and master3 of containers: 
 
 Now we have 3 services containers running on 2 nodes in a 5 node cluster with 3 managers.
