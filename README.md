@@ -1,4 +1,5 @@
 This project demonstartes how to provision a Docker Swarm on AWS using EC2 compute actioned by Terrraform.
+Please see wiki for more detrails: https://github.com/Skorekaj/DockerSwarm_On_Aws_Provisioned_With_Terraform/wiki
 
 - Setup run 5 ec2 instances.
 - Configure sec groups to allow all traffic so nodes can join and communicate.
